@@ -18,6 +18,19 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Route for get one student by id
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        const student = await Student.findById(id);
+
+        return res.status(200).json(student);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: error.message });
+    }
+});
+
 // Route for create a new student
 router.post('/', async (req, res) => {
     try {
@@ -42,6 +55,50 @@ router.post('/', async (req, res) => {
     } catch (error) {
         console.log(error.message);
         res.status(400).send({ message: error.message });
+    }
+});
+
+// Route for update a student
+router.put("/:id", async (req, res) => {
+    try {
+        if(
+            !req.body.name || 
+            !req.body.department || 
+            !req.body.cgpa
+        ) {
+            return res.status(400).send({
+                message: "Send all required fields: name, department, cgpa"
+            })
+        }
+
+        const { id } = req.params
+        const result = await Student.findByIdAndUpdate(id, req.body)
+
+        if(!result) {
+            return res.status(404).send({ message: "Student not found"});
+        }
+
+        return res.status(200).send({ message: "Student updated successfully" });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// Route for delete a student
+router.delete("/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        const result = await Student.findByIdAndDelete(id);
+
+        if(!result) {
+            return res.status(404).json({ message: "Student not found"});
+        }
+        return res.status(200).send({ message: "Student deleted successfully"});
+        
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: error.message });
     }
 });
 
